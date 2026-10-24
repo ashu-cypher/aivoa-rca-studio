@@ -1,0 +1,11 @@
+FICTIONAL DEMO DATA — NOT A REAL BATCH OR GMP RECORD
+
+Incident report — final drying stage (fictional API manufacturing example)
+
+During the final drying stage of a fictional API batch, the recorded moisture result was above the stated internal acceptance criterion. The drying cycle was extended beyond the planned duration in an attempt to bring the result within criterion, but the follow-up result remained above criterion.
+
+The report mentions a potential discrepancy in a temperature sensor record for the dryer during this stage. The actual equipment condition, calibration status of the temperature sensor, material characteristics, and complete batch history have not yet been verified.
+
+Immediate containment noted in the report: the batch was placed on hold pending investigation, and no further processing was performed.
+
+No batch number, date, numerical moisture value, acceptance limit, equipment ID, or personnel name is provided in this fictional report, and none should be assumed.
