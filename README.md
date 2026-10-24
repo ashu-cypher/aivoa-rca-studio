@@ -30,10 +30,17 @@ Disclaimer shown throughout the app:
 
 1. Create a key at https://console.groq.com/keys
 2. `cp backend/.env.example backend/.env` and set `GROQ_API_KEY=...`
-3. Optional: `GROQ_MODEL=llama-3.3-70b-versatile` (default). The backend checks the model at
-   call time; if Groq reports it unavailable, the API returns a clear 502 — change the model
-   in `backend/.env` and restart.
-4. **Never** put the key in frontend code, `frontend/.env`, localStorage, or Redux. Keys live
+3. Optional: `GROQ_MODEL=llama-3.3-70b-versatile` (default). The backend loads
+   `backend/.env` only when it is started from the `backend/` directory (see §4), and
+   process env vars win over `.env` values.
+4. Verify the integration without running a full analysis:
+   - `GET /api/ai/status` — reports key configured? and whether the configured model
+     is offered by this Groq account (401 = bad key, model not found = change GROQ_MODEL).
+   - `python scripts/check_groq.py` (from `backend/`) — lists models and sends one tiny
+     JSON-mode chat request. It prints no key. Exit 0 = a real Groq JSON response came back.
+   - If Groq reports the model unavailable, the API returns a clear 502 naming the model
+     — change `GROQ_MODEL` in `backend/.env` and restart.
+5. **Never** put the key in frontend code, `frontend/.env`, localStorage, or Redux. Keys live
    only in `backend/.env` and are sent only from the backend to Groq.
 
 ## 3. Database — which one is actually used?
@@ -104,6 +111,7 @@ python3 scripts/make_demo_pdf.py   # reads demo_data/fictional_drying_incident.t
 | PATCH /api/investigations/{id} | Edit fields/status (validated transitions) + nested replace |
 | POST /api/investigations/{id}/save | Persist reviewed state + audit event (never auto-approves) |
 | POST /api/investigations/{id}/approve | Human reviewer decision (requires reviewer name; AI cannot approve) |
+| GET /api/ai/status | Groq key/model integration status (no full analysis) |
 | POST /api/ai/extract | Pasted text/email → structured fields |
 | POST /api/ai/extract-file | PDF upload → text extraction → structured fields |
 | POST /api/ai/analyze-rca | Full LangGraph workflow |

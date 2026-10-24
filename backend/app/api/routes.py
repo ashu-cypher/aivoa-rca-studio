@@ -33,10 +33,15 @@ def _get_inv(db: Session, inv_id: str) -> Investigation:
 
 
 def _ai_error(e: Exception) -> HTTPException:
-    msg = str(e)
-    if "GROQ_API_KEY" in msg:
-        return HTTPException(503, msg)
-    return HTTPException(502, msg)
+    # Honour the provider error's own status: 503 = key not configured,
+    # 502 = provider rejected / failed. Do not infer from substrings, or a
+    # 401 "check GROQ_API_KEY" message would wrongly become a 503.
+    status = getattr(e, "status", None)
+    if isinstance(status, int):
+        return HTTPException(status, str(e))
+    if "is not configured" in str(e):
+        return HTTPException(503, str(e))
+    return HTTPException(502, str(e))
 
 
 @router.get("/health")
@@ -127,6 +132,18 @@ def approve_investigation(inv_id: str, payload: ApproveRequest, db: Session = De
 
 
 # ---- AI ----
+@router.get("/ai/status")
+def ai_status():
+    """Groq integration status: key configured? configured model offered by this account?
+
+    This calls Groq's models endpoint when a key is present; with no key it
+    returns configured=False without calling the provider.
+    """
+    from app.services.llm import check_model_available
+
+    return check_model_available()
+
+
 @router.post("/ai/extract")
 def ai_extract(payload: ExtractRequest):
     try:
